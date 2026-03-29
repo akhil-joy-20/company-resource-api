@@ -25,7 +25,7 @@ A Spring Boot security project featuring JWT authentication, role-based and perm
 
 | Technology | Purpose |
 |---|---|
-| Spring Boot 3.5 | Application framework |
+| Spring Boot 4.0.1 | Application framework |
 | Spring Security 7 | Method-level security |
 | OAuth2 Resource Server | JWT validation |
 | Java 21 | Runtime |
@@ -35,11 +35,10 @@ A Spring Boot security project featuring JWT authentication, role-based and perm
 
 | Technology | Purpose |
 |---|---|
-| Keycloak (v23+) | Identity & Access Management |
+| Keycloak (v26+) | Identity & Access Management |
 | Realm + Client Roles | RBAC model |
 | Custom Token Mappers | Department & permissions in JWT |
 | Refresh Token Flow | Session management |
-| Token Introspection | Logout support |
 
 ---
 
@@ -175,9 +174,6 @@ All endpoints require a valid Keycloak access token. Access is enforced through 
 ### Client
 
 - **Client ID:** `company-resource-api`
-- **Client Type:** `Bearer-only`
-
-> The API only validates tokens — it does not request them. No client secret is needed.
 
 ### Client Roles
 
@@ -265,21 +261,27 @@ GET {{baseUrl}}{{projects}}/secure/101
 ## Token Management
 
 ### Refresh Access Token
-
 ```
-POST /realms/company-internal/protocol/openid-connect/token
-
-grant_type=refresh_token
-refresh_token=<your_refresh_token>
+POST {{keycloakUrl}}/realms/company-access-realm/protocol/openid-connect/token
 ```
+
+| Field | Value |
+|-------|-------|
+| `grant_type` | `refresh_token` |
+| `refresh_token` | `<your_refresh_token>` |
+| `client_id` | `company-resource-api` |
+| `client_secret` | `<your_client_secret>` |
 
 ### Logout (Invalidate Refresh Token)
-
 ```
-POST /realms/company-internal/protocol/openid-connect/logout
-
-refresh_token=<your_refresh_token>
+POST {{keycloakUrl}}/realms/company-access-realm/protocol/openid-connect/logout
 ```
+
+| Field | Value |
+|-------|-------|
+| `client_id` | `company-resource-api` |
+| `client_secret` | `<your_client_secret>` |
+| `refresh_token` | `<your_refresh_token>` |
 
 > **Note:** JWT access tokens are stateless and cannot be invalidated before they expire. Only refresh tokens can be revoked via the logout endpoint.
 
